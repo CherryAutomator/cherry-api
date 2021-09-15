@@ -1,17 +1,11 @@
-import { EntityRepository, FindOneOptions } from "typeorm";
+import { AbstractRepository, EntityRepository, FindOneOptions, getRepository, Repository } from "typeorm";
 import { IReleaseConfigurationRepository, ReleaseConfiguration } from "../../domain/model/ReleaseConfiguration";
 import { QueryOptions } from "../../domain/shared/mapping";
 import { PagingParams, Paged } from "../../domain/shared/pagination";
-import { ReleaseConfigurationSchema } from "../database/schemas/ReleaseConfiguration";
 import { computeLimitAndOffset } from "../utils/pagination";
-import { TypeormRepository } from "./TypeormRepository";
 
-@EntityRepository(ReleaseConfigurationSchema)
-export class ReleaseConfigurationRepository extends TypeormRepository<ReleaseConfiguration> implements IReleaseConfigurationRepository {
-  constructor() {
-    super(ReleaseConfigurationSchema);
-  }
-
+@EntityRepository(ReleaseConfiguration)
+export class ReleaseConfigurationRepository extends AbstractRepository<ReleaseConfiguration> implements IReleaseConfigurationRepository {
   async findByProject(projectId: string, params: PagingParams, options?: QueryOptions): Promise<Paged<ReleaseConfiguration>> {
     const { limit, offset } = computeLimitAndOffset(params);
 

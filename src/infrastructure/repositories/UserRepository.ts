@@ -1,14 +1,9 @@
-import { EntityRepository, FindOneOptions } from "typeorm";
+import { AbstractRepository, EntityRepository, FindOneOptions } from "typeorm";
 import { IUserRepository, User } from "../../domain/model/User";
 import { UserSchema } from "../database/schemas/User";
-import { TypeormRepository } from "./TypeormRepository";
 
 @EntityRepository(UserSchema)
-export class UserRepository extends TypeormRepository<User> implements IUserRepository {
-  constructor() {
-    super(UserSchema);
-  }
-
+export class UserRepository extends AbstractRepository<User> implements IUserRepository {
   store(user: User): Promise<User> {
     return this.repository.save(user);
   }

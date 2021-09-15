@@ -1,16 +1,11 @@
-import { EntityRepository, FindOneOptions } from "typeorm";
+import { AbstractRepository, EntityRepository, FindOneOptions, getRepository, Repository } from "typeorm";
 import { IProjectRepository, Project } from "../../domain/model/Project";
 import { QueryOptions } from "../../domain/shared/mapping";
 import { PagingParams, Paged } from "../../domain/shared/pagination";
-import { ProjectSchema } from "../database/schemas/Project";
 import { computeLimitAndOffset } from "../utils/pagination";
-import { TypeormRepository } from "./TypeormRepository";
 
-@EntityRepository(ProjectSchema)
-export class ProjectRepository extends TypeormRepository<Project> implements IProjectRepository {
-  constructor() {
-    super(ProjectSchema);
-  }
+@EntityRepository(Project)
+export class ProjectRepository extends AbstractRepository<Project> implements IProjectRepository {
 
   async findByUser(ownerId: string, params: PagingParams, options?: QueryOptions): Promise<Paged<Project>> {
     const { limit, offset } = computeLimitAndOffset(params);

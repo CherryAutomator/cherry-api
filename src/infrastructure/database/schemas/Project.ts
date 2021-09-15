@@ -1,8 +1,12 @@
 import { EntitySchema } from "typeorm";
 import { Project } from "../../../domain/model/Project";
+import { ReleaseConfiguration } from "../../../domain/model/ReleaseConfiguration";
+import { User } from "../../../domain/model/User";
 
 export const ProjectSchema = new EntitySchema<Project>({
-  name: "projects",
+  tableName: "projects",
+  name: Project.name,
+  target: Project,
   columns: {
     id: {
       type: "uuid",
@@ -28,11 +32,11 @@ export const ProjectSchema = new EntitySchema<Project>({
   relations: {
     owner: {
       type: "many-to-one",
-      target: "users",
+      target: User.name,
     },
     releaseConfigurations: {
       type: "one-to-many",
-      target: "release_configurations",
+      target: ReleaseConfiguration.name,
     },
   },
 });

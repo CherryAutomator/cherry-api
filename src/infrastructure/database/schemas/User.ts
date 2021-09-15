@@ -1,8 +1,11 @@
 import { EntitySchema } from "typeorm";
+import { Project } from "../../../domain/model/Project";
 import { User } from "../../../domain/model/User";
 
 export const UserSchema = new EntitySchema<User>({
-  name: "users",
+  tableName: "users",
+  name: User.name,
+  target: User,
   columns: {
     id: {
       type: "uuid",
@@ -29,7 +32,7 @@ export const UserSchema = new EntitySchema<User>({
   relations: {
     projects: {
       type: "one-to-many",
-      target: "projects",
+      target: Project.name,
     },
   },
 });

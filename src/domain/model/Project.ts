@@ -17,12 +17,13 @@ export class Project {
   description: string;
   color: string;
   createdAt: Date;
+  externalRepositoryId: string;
   releaseConfigurations: ReleaseConfiguration[];
   owner: User;
   ownerId: string;
 
   validateOwner(ownerId: string) {
-    if (this.owner.id !== ownerId) {
+    if (this.ownerId !== ownerId) {
       throw new Error("The user is not the project owner");
     }
   }

@@ -1,3 +1,4 @@
+import { v4 } from "uuid";
 import { QueryOptions } from "../shared/mapping";
 import { Paged, PagingParams } from "../shared/pagination";
 import { Project } from "./Project";
@@ -19,6 +20,7 @@ export class ReleaseConfiguration {
   project: Project;
 
   constructor(name: string, branchFrom: string, branchTo: string, project: Project) {
+    this.id = v4();
     this.createdAt = new Date();
     this.name = name;    
     this.branchFrom = branchFrom;    

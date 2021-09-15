@@ -2,6 +2,7 @@ import express from 'express';
 import { createConnection, getConnectionOptions } from 'typeorm';
 import { AuthenticationController } from './web/controllers/authentication';
 import { ProjectsController } from './web/controllers/projects';
+import { ReleasesController } from './web/controllers/releases';
 import { UsersController } from './web/controllers/users';
 import { getApplicationServices } from './web/services';
 import { registerControllers } from './web/utils/decorators';
@@ -25,7 +26,8 @@ getConnectionOptions()
     const { project, authentication, release, user } = getApplicationServices(connection);
 
     registerControllers(app, [
-      new ProjectsController(project, release),
+      new ProjectsController(project),
+      new ReleasesController(release),
       new AuthenticationController(authentication),
       new UsersController(user),
     ]);

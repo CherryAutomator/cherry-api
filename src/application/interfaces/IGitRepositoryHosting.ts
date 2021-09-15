@@ -13,4 +13,5 @@ export interface ReleaseParams {
 
 export interface IGitRepositoryHosting {
   newRelease(params: ReleaseParams): Promise<void>;
+  getCloneURL(repositoryId: string): Promise<string>;
 }

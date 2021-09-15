@@ -1,6 +1,7 @@
 import { v1 } from "uuid";
 import { IProjectRepository } from "../../domain/model/Project";
 import { IReleaseConfigurationRepository, ReleaseConfiguration } from "../../domain/model/ReleaseConfiguration";
+import { PagingParams } from "../../domain/shared/pagination";
 import { IGitRepository, VersionIncrementType } from "../interfaces/IGitRepository";
 import { IGitRepositoryHosting } from "../interfaces/IGitRepositoryHosting";
 
@@ -43,46 +44,52 @@ export class ReleaseService {
 
     const project = await this.projectRepository.findById(projectId);
 
+    console.log(project);
+
     if (!project) {
       throw new Error("Project not found");
     }
 
     project.validateOwner(userId);
     
-    this.releaseConfigurationRepository.store(new ReleaseConfiguration(name, branchFrom, branchTo, project));
+    return this.releaseConfigurationRepository.store(new ReleaseConfiguration(name, branchFrom, branchTo, project));
   }
 
   async editReleaseConfiguration(userId: string, command: EditReleaseConfigurationCommand) {
     const { id, name, branchFrom, branchTo } = command;
 
-    const releaseConfiguration = await this.releaseConfigurationRepository.findById(id);
+    const releaseConfiguration = await this.releaseConfigurationRepository.findById(id, { relations: ["project"] });
+
+    if (!releaseConfiguration) {
+      throw new Error("Release configuration not found");
+    }
 
     releaseConfiguration.project.validateOwner(userId);
     releaseConfiguration.branchFrom = branchFrom;
     releaseConfiguration.branchTo = branchTo;
     releaseConfiguration.name = name;
     
-    this.releaseConfigurationRepository.store(releaseConfiguration);
+    return this.releaseConfigurationRepository.store(releaseConfiguration);
   }
 
-  async getReleaseConfigurationsFromProject(userId: string, projectId: string) {
+  async getReleaseConfigurationsFromProject(userId: string, projectId: string, pagingParams: PagingParams) {
     const project = await this.projectRepository.findById(projectId);
 
     project.validateOwner(userId);
 
-    return this.releaseConfigurationRepository.findByProject(projectId);
+    return this.releaseConfigurationRepository.findByProject(projectId, pagingParams);
   }
 
-  async deleteReleaseConfiguration(userId: string, projectId: string) {
-    const project = await this.projectRepository.findById(projectId);
+  async deleteReleaseConfiguration(userId: string, id: string) {
+    const releaseConfiguration = await this.releaseConfigurationRepository.findById(id, { relations: ["project"] });
 
-    project.validateOwner(userId);
+    releaseConfiguration.project.validateOwner(userId);
 
-    return this.releaseConfigurationRepository.remove(projectId);
+    return this.releaseConfigurationRepository.remove(id);
   }
 
   async getReleaseConfiguration(id: string) {
-    const releaseConfiguration = await this.releaseConfigurationRepository.findById(id);
+    const releaseConfiguration = await this.releaseConfigurationRepository.findById(id, { relations: ["project"] });
 
     if (!releaseConfiguration) {
       throw new Error("Release configuration not found");
@@ -95,15 +102,17 @@ export class ReleaseService {
     const { releaseConfigId, notes, type } = releaseCommand;
 
     const configuration = await this.getReleaseConfiguration(releaseConfigId);
+
     configuration.project.validateOwner(userId);
 
-    await this.repository.set(configuration.project);
+    const cloneURL = await this.repositoryHosting.getCloneURL(configuration.project.externalRepositoryId);
+
+    await this.repository.clone(cloneURL);
     await this.repository.merge(configuration.branchFrom, configuration.branchTo);
 
     const tag = await this.repository.tag(type, configuration.branchTo);
 
     await this.repository.push(configuration.branchTo);
-
     await this.repositoryHosting.newRelease({ branch: configuration.branchTo, notes, tag });
   }
 
