@@ -13,12 +13,15 @@ export const ReleaseConfigurationSchema = new EntitySchema<ReleaseConfiguration>
     },
     name: {
       type: String,
+      length: 20,
     },
     branchFrom: {
       type: String,
+      length: 28,
     },
     branchTo: {
       type: String,
+      length: 28,
     },
     createdAt: {
       type: "timestamp",

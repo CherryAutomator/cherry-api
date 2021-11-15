@@ -4,7 +4,8 @@ import { IHasher } from "../interfaces/IHasher";
 import { IJwtProvider } from "../interfaces/IJwtProvider";
 
 export interface CreateUserCommand {
-  name: string;
+  firstname: string;
+  lastname: string;
   email: string;
   password: string;
 }
@@ -21,7 +22,7 @@ export class UserService {
   }
 
   async create(command: CreateUserCommand) {
-    const { email, name, password } = command;
+    const { email, firstname, lastname, password } = command;
 
     const createdPassword = await this.createPassword(password);
 
@@ -29,7 +30,7 @@ export class UserService {
 
     if (existentUser) throw new Error('There is already a user with this email');
 
-    const createdUser = await this.userRepository.store(new User(name, email, createdPassword));
+    const createdUser = await this.userRepository.store(new User(firstname, lastname, email, createdPassword));
 
     return {
       refreshToken: this.jwt.createRefreshToken(createdUser),

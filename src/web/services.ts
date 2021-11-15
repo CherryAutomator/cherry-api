@@ -8,6 +8,8 @@ import { ReleaseConfigurationRepository } from "../infrastructure/repositories/R
 import { UserRepository } from "../infrastructure/repositories/UserRepository";
 import { Bcrypt } from "../infrastructure/providers/Bcrypt";
 import { Jwt } from "../infrastructure/providers/Jwt";
+import { Github } from "../infrastructure/services/Github";
+import { NodeGit } from "../infrastructure/utils/git";
 
 export function getApplicationServices(connection: Connection) {
   const bcrypt = new Bcrypt();
@@ -19,8 +21,8 @@ export function getApplicationServices(connection: Connection) {
       connection.getCustomRepository(UserRepository),
     ),
     release: new ReleaseService(
-      {},
-      {},
+      new NodeGit(),
+      new Github(),
       connection.getCustomRepository(ReleaseConfigurationRepository),
       connection.getCustomRepository(ProjectRepository),
     ),

@@ -11,18 +11,26 @@ export const UserSchema = new EntitySchema<User>({
       type: "uuid",
       primary: true,
     },
-    name: {
+    firstname: {
       type: String,
+      length: 30,
+    },
+    lastname: {
+      type: String,
+      length: 30,
     },
     email: {
       type: String,
+      length: 50,
     },
     password: {
       type: String,
+      length: 75,
     },
     accessToken: {
       type: String,
       nullable: true,
+      length: 128,
     },
     createdAt: {
       type: "timestamp",

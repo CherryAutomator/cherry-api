@@ -8,5 +8,5 @@ export interface ProjectResource {
   color: string;
   createdAt: Date;
   releaseConfigurations: ReleaseConfigurationResource[];
-  owner: UserCompact;
+  user: UserCompact;
 }

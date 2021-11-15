@@ -14,23 +14,30 @@ export const ProjectSchema = new EntitySchema<Project>({
     },
     name: {
       type: String,
+      length: 30,
     },
     description: {
       type: String,
+      length: 128,
     },
     color: {
       type: String,
+      length: 20,
     },
     createdAt: {
       type: "timestamp",
       createDate: true,
     },
-    ownerId: {
+    userId: {
       type: "uuid",
+    },
+    externalRepositoryId: {
+      type: String,
+      length: 60,
     },
   },
   relations: {
-    owner: {
+    user: {
       type: "many-to-one",
       target: User.name,
     },

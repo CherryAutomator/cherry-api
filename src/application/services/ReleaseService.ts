@@ -7,7 +7,8 @@ import { IGitRepositoryHosting } from "../interfaces/IGitRepositoryHosting";
 
 export interface ReleaseCommand {
   releaseConfigId: string;
-  type: VersionIncrementType;
+  type?: VersionIncrementType;
+  tagName?: string;
   notes: string;
 }
 
@@ -99,7 +100,7 @@ export class ReleaseService {
   }
 
   async createRelease(userId: string, releaseCommand: ReleaseCommand) {
-    const { releaseConfigId, notes, type } = releaseCommand;
+    const { releaseConfigId, notes, type, tagName } = releaseCommand;
 
     const configuration = await this.getReleaseConfiguration(releaseConfigId);
 
@@ -107,13 +108,27 @@ export class ReleaseService {
 
     const cloneURL = await this.repositoryHosting.getCloneURL(configuration.project.externalRepositoryId);
 
-    await this.repository.clone(cloneURL);
-    await this.repository.merge(configuration.branchFrom, configuration.branchTo);
+    await this.repository.clone(cloneURL, configuration.project.id);
+    await this.repository.merge(configuration.branchFrom, configuration.branchTo, configuration.project.id);
 
-    const tag = await this.repository.tag(type, configuration.branchTo);
+    console.log("FOI 1");
 
-    await this.repository.push(configuration.branchTo);
-    await this.repositoryHosting.newRelease({ branch: configuration.branchTo, notes, tag });
+    let tagname = tagName;
+
+    if (type) {
+      const { major, minor, patch } = this.repository.incrementPackageJson(type, configuration.project.id);
+      tagname = `v${major}.${minor}.${patch}`;
+    }
+
+    // await this.repository.tag(tagname, configuration.branchTo, configuration.project.id, notes);
+
+    console.log("FOI 3");
+
+    await this.repository.push(configuration.branchTo, configuration.project.id, tagname);
+
+    console.log("FOI 4");
+
+    // await this.repositoryHosting.newRelease({ branch: configuration.branchTo, notes, tag });
   }
 
   // async createStagingRelease(userId: string, releaseConfigurationId: string) {

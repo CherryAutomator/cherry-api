@@ -84,10 +84,12 @@ export class ReleasesController {
         releaseConfigId: req.params.id,
         notes: req.body.notes,
         type: req.body.type,
+        tagName: req.body.tagName,
       });
 
       return res.send({ message: 'Deleted successfully' });
     } catch ({ message }) {
+      console.log(message);
       return res.send({ message: message });
     }
   }

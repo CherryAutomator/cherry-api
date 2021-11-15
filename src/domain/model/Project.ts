@@ -19,21 +19,22 @@ export class Project {
   createdAt: Date;
   externalRepositoryId: string;
   releaseConfigurations: ReleaseConfiguration[];
-  owner: User;
-  ownerId: string;
+  user: User;
+  userId: string;
 
-  validateOwner(ownerId: string) {
-    if (this.ownerId !== ownerId) {
+  validateOwner(userId: string) {
+    if (this.userId !== userId) {
       throw new Error("The user is not the project owner");
     }
   }
 
-  constructor(name: string, description: string, color: string, owner: User) {
+  constructor(name: string, description: string, color: string, user: User, externalRepositoryId: string) {
     this.id = uuidv4();
     this.createdAt = new Date();
     this.name = name;
     this.description = description;
     this.color = color;
-    this.owner = owner;
+    this.user = user;
+    this.externalRepositoryId = externalRepositoryId;
   }
 }

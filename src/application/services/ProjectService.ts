@@ -8,7 +8,7 @@ export interface CreateProjectCommand {
   name: string;
   description: string;
   color: string;
-  repositoryURL: string;
+  externalRepositoryId: string;
 }
 
 export interface EditProjectCommand {
@@ -25,13 +25,13 @@ export class ProjectService {
   ) { }
 
   async createProject(userId: string, command: CreateProjectCommand) {
-    const { name, color, description, repositoryURL } = command;
+    const { name, color, description, externalRepositoryId } = command;
 
     const user = await this.userRepository.findById(userId);
 
     if (!user) throw new Error('The user does not exists');
 
-    return this.projectRepository.store(new Project(name, description, color, user));
+    return this.projectRepository.store(new Project(name, description, color, user, externalRepositoryId));
   }
 
   async editProject(userId: string, command: EditProjectCommand) {

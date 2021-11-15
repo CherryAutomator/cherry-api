@@ -11,7 +11,8 @@ export interface IUserRepository {
 
 export class User {
   id: string;
-  name: string;
+  firstname: string;
+  lastname: string;
   email: string;
   password: string;
   accessToken: string | null;
@@ -22,10 +23,11 @@ export class User {
     return Boolean(this.accessToken);
   }
 
-  constructor(name: string, email: string, password: string) {
+  constructor(firstname: string, lastname: string, email: string, password: string) {
     this.id = v4();
     this.createdAt = new Date();
-    this.name = name;
+    this.firstname = firstname;
+    this.lastname = lastname;
     this.email = email;
     this.password = password;
   }
