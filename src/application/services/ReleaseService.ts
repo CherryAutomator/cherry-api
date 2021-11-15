@@ -1,6 +1,7 @@
 import { v1 } from "uuid";
 import { IProjectRepository } from "../../domain/model/Project";
 import { IReleaseConfigurationRepository, ReleaseConfiguration } from "../../domain/model/ReleaseConfiguration";
+import { IUserRepository } from "../../domain/model/User";
 import { PagingParams } from "../../domain/shared/pagination";
 import { IGitRepository, VersionIncrementType } from "../interfaces/IGitRepository";
 import { IGitRepositoryHosting } from "../interfaces/IGitRepositoryHosting";
@@ -38,6 +39,7 @@ export class ReleaseService {
     private readonly repositoryHosting: IGitRepositoryHosting,
     private readonly releaseConfigurationRepository: IReleaseConfigurationRepository,
     private readonly projectRepository: IProjectRepository,
+    private readonly userRepository: IUserRepository,
   ) { }
 
   async createReleaseConfiguration(userId: string, command: CreateReleaseConfigurationCommand) {
@@ -102,41 +104,59 @@ export class ReleaseService {
   async createRelease(userId: string, releaseCommand: ReleaseCommand) {
     const { releaseConfigId, notes, type, tagName } = releaseCommand;
 
+    const user = await this.userRepository.findById(userId);
     const configuration = await this.getReleaseConfiguration(releaseConfigId);
-
     configuration.project.validateOwner(userId);
 
-    const cloneURL = await this.repositoryHosting.getCloneURL(configuration.project.externalRepositoryId);
+    const remoteRepository = await this.repositoryHosting.getRemoteRepository(configuration.project.externalRepositoryId);
 
-    await this.repository.clone(cloneURL, configuration.project.id);
-    await this.repository.merge(configuration.branchFrom, configuration.branchTo, configuration.project.id);
+    console.log(`\n⏳ Cloning ${remoteRepository.url}`);
 
-    console.log("FOI 1");
+    await this.repository.clone(remoteRepository.url, configuration.project.id);
 
-    let tagname = tagName;
+    console.log(` - 🔄 Merging ${configuration.branchFrom} into ${configuration.branchTo}`);
 
-    if (type) {
-      const { major, minor, patch } = this.repository.incrementPackageJson(type, configuration.project.id);
-      tagname = `v${major}.${minor}.${patch}`;
+    await this.repository.merge({
+      committerEmail: user.email,
+      committerName: `${user.firstname} ${user.lastname}`,
+      from: configuration.branchFrom,
+      projectId: configuration.project.id,
+      to: configuration.branchTo,
+    });
+
+    if (tagName) {
+      let tagname = tagName;
+  
+      // if (type) {
+      //   const { major, minor, patch } = this.repository.incrementPackageJson(type, configuration.project.id);
+      //   tagname = `v${major}.${minor}.${patch}`;
+      // }
+  
+      console.log(` - 📃 Creating tag (${tagName})`);
+  
+      await this.repository.tag(tagName, configuration.branchTo, configuration.project.id, notes);
     }
 
-    // await this.repository.tag(tagname, configuration.branchTo, configuration.project.id, notes);
 
-    console.log("FOI 3");
+    console.log(" - 🔱 Pushing to", configuration.branchTo);
 
-    await this.repository.push(configuration.branchTo, configuration.project.id, tagname);
+    await this.repository.push({
+      branch: configuration.branchTo,
+      personalAccessToken: user.accessToken,
+      projectId:configuration.project.id,
+      tagName: tagName,
+    });
 
-    console.log("FOI 4");
+    console.log(" - ✅ Success!");
 
-    // await this.repositoryHosting.newRelease({ branch: configuration.branchTo, notes, tag });
+    if (tagName) {
+      await this.repositoryHosting.newRelease({
+        repoName: remoteRepository.name,
+        owner: remoteRepository.owner,
+        accessToken: user.accessToken,
+        tag: tagName,
+        notes,
+      });
+    }
   }
-
-  // async createStagingRelease(userId: string, releaseConfigurationId: string) {
-  //   const configuration = await this.getReleaseConfig(releaseConfigurationId);
-  //   configuration.project.validateOwner(userId);
-    
-  //   await this.repository.set(configuration.project);
-  //   await this.repository.merge(configuration.branchFrom, configuration.branchTo);
-  //   await this.repository.push(configuration.branchTo);
-  // }
 }

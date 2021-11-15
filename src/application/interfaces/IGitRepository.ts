@@ -1,12 +1,23 @@
-import { Project } from "../../domain/model/Project";
-import { Tag } from "./IGitRepositoryHosting";
-
 export type VersionIncrementType = "major" | "minor" | "patch";
+export interface MergeParams {
+  from: string;
+  to: string;
+  projectId: string;
+  committerName: string;
+  committerEmail: string;
+}
+
+export interface PushParams {
+  branch: string;
+  projectId: string;
+  personalAccessToken: string; 
+  tagName?: string;
+}
 
 export interface IGitRepository {
   clone(url: string, projectId: string): Promise<void>;
-  merge(from: string, to: string, projectId: string): Promise<void>;
-  incrementPackageJson(type: VersionIncrementType, projectId: string): Tag;
+  merge(params: MergeParams): Promise<void>;
+  incrementPackageJson(type: VersionIncrementType, projectId: string): void;
   tag(name: string, branchName: string, projectId: string, notes: string): Promise<void>;
-  push(branch: string, projectId: string, tagName: string): Promise<void>;
+  push(params: PushParams): Promise<void>;
 }

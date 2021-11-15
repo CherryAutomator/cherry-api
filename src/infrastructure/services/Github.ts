@@ -1,16 +1,27 @@
-import { IGitRepositoryHosting, ReleaseParams } from "../../application/interfaces/IGitRepositoryHosting";
+import { IGitRepositoryHosting, ReleaseParams, RemoteRepository } from "../../application/interfaces/IGitRepositoryHosting";
 import { Octokit } from "octokit";
 
 export class Github implements IGitRepositoryHosting {
-  newRelease(params: ReleaseParams): Promise<void> {
-    throw new Error("Method not implemented.");
+  async newRelease(params: ReleaseParams): Promise<void> {
+    const octokit = new Octokit({ auth: params.accessToken });
+
+    await octokit.request("POST /repos/{owner}/{repo}/releases", {
+      owner: params.owner,
+      repo: params.repoName,
+      tag_name: params.tag,
+      body: params.notes,
+    });
   }
 
-  async getCloneURL(repositoryId: string): Promise<string> {
+  async getRemoteRepository(repositoryId: string): Promise<RemoteRepository> {
     const octokit = new Octokit();
 
     const { data } = await octokit.request(`GET /repositories/${repositoryId}`);
-    
-    return data.clone_url;
+
+    return {
+      url: data.clone_url,
+      name: data.name,
+      owner: data.owner.login,
+    };
   }
 }

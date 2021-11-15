@@ -1,19 +1,21 @@
 const { SnakeNamingStrategy } = require("typeorm-naming-strategies");
 
+var sourceDir = process.env.NODE_ENV === "development" ? "src" : "dist";
+
 module.exports = {
   type: "postgres",
-  host: "localhost",
-  port: 5432,
-  username: "postgres",
-  password: "123",
-  database: "cherry",
+  host: process.env.DATABASE_URL,
+  port: process.env.DATABASE_PORT,
+  username: process.env.DATABASE_USERNAME,
+  password: process.env.DATABASE_PASSWORD,
+  database: process.env.DATABASE_NAME,
   logging: true,
 
   cli: {
-    migrationsDir: "src/infrastructure/database/migrations",
+    migrationsDir: `${sourceDir}/infrastructure/database/migrations`,
   },
 
-  entities: ["src/infrastructure/database/schemas/*.ts"],
-  migrations: ["src/infrastructure/database/migrations/*.{js,ts}"],
+  entities: [`${sourceDir}/infrastructure/database/schemas/*.{js,ts}`],
+  migrations: [`${sourceDir}/infrastructure/database/migrations/*.{js,ts}`],
   namingStrategy: new SnakeNamingStrategy(),
 }

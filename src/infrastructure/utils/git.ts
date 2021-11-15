@@ -1,13 +1,10 @@
 import { Repository } from 'nodegit';
 import Git from "nodegit";
-import { IGitRepository, VersionIncrementType } from '../../application/interfaces/IGitRepository';
+import { IGitRepository, MergeParams, PushParams, VersionIncrementType } from '../../application/interfaces/IGitRepository';
 import fs from "fs";
-import { Tag } from '../../application/interfaces/IGitRepositoryHosting';
 import simpleGit, { SimpleGit } from 'simple-git';
 
 const getPath = (id: string) => `temp/${id}`;
-
-const token = "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";
 
 export class NodeGit implements IGitRepository {
   private readonly git: SimpleGit;
@@ -21,14 +18,12 @@ export class NodeGit implements IGitRepository {
   }
 
   async clone(url: string, projectId: string): Promise<void> {
-    console.log("STARTING TO CLONE");
-
     await this.git.clone(url, getPath(projectId));
-    
-    console.log("CLONE FINISHED");
   }
 
-  async merge(from: string, to: string, projectId: string): Promise<void> {
+  async merge(params: MergeParams): Promise<void> {
+    const { committerEmail, committerName, from, projectId, to } = params;
+
     const repository = await Repository.open(getPath(projectId));
 
     const branches = await repository.getReferences();
@@ -36,57 +31,32 @@ export class NodeGit implements IGitRepository {
     let branchTo = branches.find(branch => branch.shorthand() === `origin/${to}`);
     let branchFrom = branches.find(branch => branch.shorthand() === `origin/${from}`);
 
-    console.log(branches.map(branch => ({
-      name: branch.shorthand(),
-    })));
-
-    console.log({ branchTo, branchFrom })
-
-    // if (!branchTo) {
-    //   const branchToRef = branches.find(branch => branch.shorthand() === `origin/${to}`);
-
-    //   console.log({ branchToRef: branchToRef.shorthand() });
-
-    //   branchTo = await repository.createBranch(to, branchToRef.target());
-    // }
-
-    // if (!branchFrom) {
-    //   const branchFromRef = branches.find(branch => branch.shorthand() === `origin/${from}`);
-
-    //   console.log({ branchFromRef: branchFromRef.shorthand() });
-
-    //   const commit = await repository.getCommit(branchFromRef.target());
-
-    //   console.log("TESTE", commit.message());
-
-    //   branchFrom = await repository.createBranch(from, branchFromRef.target());
-    // }
-
-    console.log({ branchTo, branchFrom });
-
     const commitTo = await repository.getCommit(branchTo.target());
     const commitFrom = await repository.getCommit(branchFrom.target());
-
-    console.log("TO COMMIT \n", commitTo.message(), "\n");
-    console.log("FROM COMMIT", commitFrom.message());
 
     const index = await Git.Merge.commits(repository, commitFrom, commitTo);
 
     if (index.hasConflicts()) {
       throw new Error("Cannot merge. Resolve the conflicts");
     }
+
+    const oid = await index.writeTreeTo(repository);
+    const parent = await repository.getHeadCommit();
+    const author = Git.Signature.now(committerName, committerEmail);
+
+    await repository.createCommit("HEAD", author, author, `[cherry]: merge ${from} into ${to}`, oid, [commitTo, commitFrom]);
   }
 
-  incrementPackageJson(type: VersionIncrementType, projectId: string): Tag {
+  incrementPackageJson(type: VersionIncrementType, projectId: string): void {
     const packageJson = JSON.parse(fs.readFileSync(`${getPath(projectId)}/package.json`, 'utf8')) as { version: string };
 
     const [major, minor, patch] = packageJson.version.split('.');
 
-    return {
-      major: Number(major) + (type === "major" ? 1 : 0),
-      minor: Number(minor) + (type === "minor" ? 1 : 0),
-      patch: Number(patch) + (type === "patch" ? 1 : 0),
-    };
+    // return {
+    //   major: Number(major) + (type === "major" ? 1 : 0),
+    //   minor: Number(minor) + (type === "minor" ? 1 : 0),
+    //   patch: Number(patch) + (type === "patch" ? 1 : 0),
+    // };
   }
 
   async tag(name: string, branchName: string, projectId: string, notes: string): Promise<void> {
@@ -97,28 +67,28 @@ export class NodeGit implements IGitRepository {
       await repository.createTag(branch.target(), name, notes);
     } catch (error) {
       console.log("ERROR TAG", error);
+      throw error;
     }
   }
 
-  async push(branch: string, projectId: string, tagName: string): Promise<void> {
+  async push(params: PushParams): Promise<void> {
+    const { branch, personalAccessToken, projectId, tagName } = params;
+
     const repository = await Repository.open(getPath(projectId));
 
     const remote = await repository.getRemote("origin");
 
-    console.log("PUSHING TO", branch);
+    const references = [`refs/heads/${branch}:refs/heads/${branch}`];
 
-    await remote.push(
-      [
-        `refs/heads/${branch}:refs/heads/${branch}`,
-        `refs/tags/${tagName}`,
-      ],
+    if (tagName) {
+      references.push(`refs/tags/${tagName}`);
+    }
+
+    await remote.push(references,
       {
         callbacks: {
           certificateCheck: () => 1,
-          credentials: () => Git.Cred.userpassPlaintextNew(token, "x-oauth-basic"),
-          transferProgress: (progress) => {
-            console.log('progress: ', progress)
-          }
+          credentials: () => Git.Cred.userpassPlaintextNew(personalAccessToken, "x-oauth-basic"),
         }
       }
     );

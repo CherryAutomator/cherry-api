@@ -25,6 +25,7 @@ export function getApplicationServices(connection: Connection) {
       new Github(),
       connection.getCustomRepository(ReleaseConfigurationRepository),
       connection.getCustomRepository(ProjectRepository),
+      connection.getCustomRepository(UserRepository),
     ),
     user: new UserService(
       connection.getCustomRepository(UserRepository),
