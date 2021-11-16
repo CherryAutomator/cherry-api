@@ -11,7 +11,6 @@ const swaggerDocument = YAML.load('./swagger.yaml');
 import swaggerUI from 'swagger-ui-express';
 
 export const app = express();
-const port = 3000;
 
 app.use(express.json());
 app.use(express.urlencoded());
@@ -34,6 +33,8 @@ getConnectionOptions()
       new AuthenticationController(authentication),
       new UsersController(user),
     ]);
+
+    const port = process.env.PORT || 3000;
     
     app.listen(port, () => console.log(`Listening at http://localhost:${port}/v1`));
   })
