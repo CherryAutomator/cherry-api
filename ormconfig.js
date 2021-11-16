@@ -4,7 +4,7 @@ var sourceDir = process.env.NODE_ENV === "development" ? "src" : "dist";
 
 module.exports = {
   type: "postgres",
-  host: process.env.DATABASE_URL,
+  host: process.env.DATABASE_HOST,
   port: process.env.DATABASE_PORT,
   username: process.env.DATABASE_USERNAME,
   password: process.env.DATABASE_PASSWORD,
