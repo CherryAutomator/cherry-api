@@ -6,12 +6,17 @@ import { ReleasesController } from './web/controllers/releases';
 import { UsersController } from './web/controllers/users';
 import { getApplicationServices } from './web/services';
 import { registerControllers } from './web/utils/decorators';
+import YAML from 'yamljs';
+const swaggerDocument = YAML.load('./swagger.yaml');
+import swaggerUI from 'swagger-ui-express';
 
 export const app = express();
 const port = 3000;
 
 app.use(express.json());
 app.use(express.urlencoded());
+
+app.use('/v1', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 getConnectionOptions()
   .then(async options =>
@@ -21,16 +26,16 @@ getConnectionOptions()
     }),
   )
   .then(connection => {
-    app.listen(port, () => console.log(`Listening at http://localhost:${port}`));
-
     const { project, authentication, release, user } = getApplicationServices(connection);
-
+    
     registerControllers(app, [
       new ProjectsController(project),
       new ReleasesController(release),
       new AuthenticationController(authentication),
       new UsersController(user),
     ]);
+    
+    app.listen(port, () => console.log(`Listening at http://localhost:${port}/v1`));
   })
   .catch(error => console.error(error));
 
