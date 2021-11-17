@@ -78,6 +78,10 @@ export class ReleaseService {
   async getReleaseConfigurationsFromProject(userId: string, projectId: string, pagingParams: PagingParams) {
     const project = await this.projectRepository.findById(projectId);
 
+    if (!project) {
+      throw new Error("Project not found");
+    }
+
     project.validateOwner(userId);
 
     return this.releaseConfigurationRepository.findByProject(projectId, pagingParams);
