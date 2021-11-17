@@ -9,7 +9,7 @@ paths:
   /auth:
     post:
       tags:
-      - "auth"
+      - "Authentication"
       operationId: "addPet"
       consumes:
       - "application/json"
@@ -33,7 +33,7 @@ paths:
   /me/projects:
     get:
       tags:
-      - "projects"
+      - "Projects"
       produces:
       - "application/json"
       parameters:
@@ -51,7 +51,7 @@ paths:
   /projects:
     post:
       tags:
-      - "projects"
+      - "Projects"
       produces:
       - "application/json"
       parameters:
@@ -68,7 +68,7 @@ paths:
   /projects/{id}:
     get:
       tags:
-      - "projects"
+      - "Projects"
       produces:
       - "application/json"
       parameters:
@@ -83,7 +83,7 @@ paths:
               $ref: "#/definitions/ApiResponse"
     put:
       tags:
-      - "projects"
+      - "Projects"
       produces:
       - "application/json"
       parameters:
@@ -102,7 +102,7 @@ paths:
               $ref: "#/definitions/ApiResponse"
     delete:
       tags:
-      - "projects"
+      - "Projects"
       produces:
       - "application/json"
       parameters:
