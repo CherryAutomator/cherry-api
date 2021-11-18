@@ -1,6 +1,7 @@
 import { Request } from "express";
 import { AuthenticationService } from "../../application/services/AuthenticationService";
 import { Post } from "../utils/decorators";
+import { error } from "../utils/errors";
 import { Response } from "../utils/response";
 
 export class AuthenticationController {
@@ -13,8 +14,8 @@ export class AuthenticationController {
       const tokens = await this.authenticationService.authenticate(email, password);
 
       res.send({ content: tokens, message: 'Successfully authenticated' });
-    } catch (error) {
-      res.send({ content: null, message: error.message });
+    } catch (err) {
+      return error(err, res);
     }
   }
 }

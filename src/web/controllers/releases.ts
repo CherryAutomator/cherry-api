@@ -5,6 +5,7 @@ import { Response } from "../utils/response";
 import { Paged } from "../../domain/shared/pagination";
 import { ReleaseConfiguration } from "../../domain/model/ReleaseConfiguration";
 import { getPaging, getUserId } from "../utils/params";
+import { error } from "../utils/errors";
 
 export class ReleasesController {
   constructor(private readonly releaseService: ReleaseService) { }
@@ -20,8 +21,8 @@ export class ReleasesController {
       );
 
       return res.send({ content: releaseConfigurations });
-    } catch ({ message }) {
-      return res.send({ message: message });
+    } catch (err) {
+      return error(err, res);
     }
   }
 
@@ -32,8 +33,8 @@ export class ReleasesController {
       const releaseConfiguration = await this.releaseService.getReleaseConfiguration(req.params.id);
 
       return res.send({ content: releaseConfiguration });
-    } catch ({ message }) {
-      return res.send({ message: message });
+    } catch (err) {
+      return error(err, res);
     }
   }
 
@@ -44,8 +45,8 @@ export class ReleasesController {
       const created = await this.releaseService.createReleaseConfiguration(getUserId(res), req.body);
 
       return res.send({ content: created, message: 'Created successfully' });
-    } catch ({ message }) {
-      return res.send({ message: message });
+    } catch (err) {
+      return error(err, res);
     }
   }
 
@@ -59,8 +60,8 @@ export class ReleasesController {
       });
 
       return res.send({ content: edited,  message: 'Edited successfully' });
-    } catch ({ message }) {
-      return res.send({ message: message });
+    } catch (err) {
+      return error(err, res);
     }
   }
 
@@ -71,8 +72,8 @@ export class ReleasesController {
       await this.releaseService.deleteReleaseConfiguration(getUserId(res), req.params.id);
 
       return res.send({ message: 'Deleted successfully' });
-    } catch ({ message }) {
-      return res.send({ message: message });
+    } catch (err) {
+      return error(err, res);
     }
   }
 
@@ -88,9 +89,8 @@ export class ReleasesController {
       });
 
       return res.send({ message: 'Deleted successfully' });
-    } catch ({ message }) {
-      console.log(message);
-      return res.send({ message: message });
+    } catch (err) {
+      return error(err, res);
     }
   }
 }

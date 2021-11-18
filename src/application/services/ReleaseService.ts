@@ -2,6 +2,7 @@ import { v1 } from "uuid";
 import { IProjectRepository } from "../../domain/model/Project";
 import { IReleaseConfigurationRepository, ReleaseConfiguration } from "../../domain/model/ReleaseConfiguration";
 import { IUserRepository } from "../../domain/model/User";
+import { NotFound } from "../../domain/shared/errors";
 import { PagingParams } from "../../domain/shared/pagination";
 import { IGitRepository, VersionIncrementType } from "../interfaces/IGitRepository";
 import { IGitRepositoryHosting } from "../interfaces/IGitRepositoryHosting";
@@ -50,7 +51,7 @@ export class ReleaseService {
     console.log(project);
 
     if (!project) {
-      throw new Error("Project not found");
+      throw new NotFound("Project not found");
     }
 
     project.validateOwner(userId);
@@ -64,7 +65,7 @@ export class ReleaseService {
     const releaseConfiguration = await this.releaseConfigurationRepository.findById(id, { relations: ["project"] });
 
     if (!releaseConfiguration) {
-      throw new Error("Release configuration not found");
+      throw new NotFound("Release configuration not found");
     }
 
     releaseConfiguration.project.validateOwner(userId);
@@ -79,7 +80,7 @@ export class ReleaseService {
     const project = await this.projectRepository.findById(projectId);
 
     if (!project) {
-      throw new Error("Project not found");
+      throw new NotFound("Project not found");
     }
 
     project.validateOwner(userId);
@@ -90,6 +91,10 @@ export class ReleaseService {
   async deleteReleaseConfiguration(userId: string, id: string) {
     const releaseConfiguration = await this.releaseConfigurationRepository.findById(id, { relations: ["project"] });
 
+    if (!releaseConfiguration) {
+      throw new NotFound("Release configuration not found");
+    }
+
     releaseConfiguration.project.validateOwner(userId);
 
     return this.releaseConfigurationRepository.remove(id);
@@ -99,7 +104,7 @@ export class ReleaseService {
     const releaseConfiguration = await this.releaseConfigurationRepository.findById(id, { relations: ["project"] });
 
     if (!releaseConfiguration) {
-      throw new Error("Release configuration not found");
+      throw new NotFound("Release configuration not found");
     }
 
     return releaseConfiguration;

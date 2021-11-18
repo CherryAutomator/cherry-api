@@ -29,7 +29,7 @@ export class ProjectService {
 
     const user = await this.userRepository.findById(userId);
 
-    if (!user) throw new Error('The user does not exists');
+    if (!user) throw new NotFound('The user does not exists');
 
     return this.projectRepository.store(new Project(name, description, color, user, externalRepositoryId));
   }

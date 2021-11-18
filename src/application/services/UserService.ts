@@ -1,5 +1,5 @@
 import { IUserRepository, User } from "../../domain/model/User";
-import { NotFound } from "../../domain/shared/errors";
+import { InvalidArgument, NotFound } from "../../domain/shared/errors";
 import { IHasher } from "../interfaces/IHasher";
 import { IJwtProvider } from "../interfaces/IJwtProvider";
 
@@ -28,7 +28,7 @@ export class UserService {
 
     const existentUser = await this.userRepository.findByEmail(email);
 
-    if (existentUser) throw new Error('There is already a user with this email');
+    if (existentUser) throw new InvalidArgument('There is already a user with this email');
 
     const createdUser = await this.userRepository.store(new User(firstname, lastname, email, createdPassword));
 
@@ -41,7 +41,7 @@ export class UserService {
   async setupAcessToken(userId: string, accessToken: string) {
     const user = await this.userRepository.findById(userId);
 
-    if (!accessToken) throw new Error("accessToken is required");
+    if (!accessToken) throw new InvalidArgument("accessToken is required");
 
     user.accessToken = accessToken;
 

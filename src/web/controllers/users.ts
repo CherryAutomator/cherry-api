@@ -2,6 +2,7 @@ import { UserService } from "../../application/services/UserService";
 import { Post } from "../utils/decorators";
 import { Response } from "../utils/response";
 import { Request } from "express";
+import { error } from "../utils/errors";
 
 export class UsersController {
   constructor(private readonly userService: UserService) { }
@@ -13,8 +14,7 @@ export class UsersController {
 
       res.send({ content: tokens, message: 'User created successfull' });
     } catch (err) {
-      console.log(err);
-      res.send({ message: err.message });
+      return error(err, res);
     }
   }
 }

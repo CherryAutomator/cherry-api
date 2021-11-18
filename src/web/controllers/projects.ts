@@ -4,6 +4,7 @@ import { ProjectService } from "../../application/services/ProjectService";
 import { Project } from "../../domain/model/Project";
 import { Paged } from "../../domain/shared/pagination";
 import { Authorize, Delete, Get, Post, Put } from "../utils/decorators";
+import { error } from "../utils/errors";
 import { getPaging, getUserId } from "../utils/params";
 import { Response } from "../utils/response";
 
@@ -17,8 +18,8 @@ export class ProjectsController{
       const project = await this.projectService.getProject(getUserId(res), req.params.id);
 
       return res.send({ content: project });
-    } catch ({ message }) {
-      return res.send({ message: message });
+    } catch (err) {
+      return error(err, res);
     }
   }
 
@@ -29,8 +30,8 @@ export class ProjectsController{
       const projects = await this.projectService.getProjects(getUserId(res), getPaging(req));
 
       return res.send({ content: projects });
-    } catch ({ message }) {
-      return res.send({ message: message });
+    } catch (err) {
+      return error(err, res);
     }
   }
 
@@ -41,8 +42,8 @@ export class ProjectsController{
       const created = await this.projectService.createProject(getUserId(res), req.body);
       
       res.send({ content: created, message: 'Project created successfully' });
-    } catch ({ message }) {
-      res.send({ message });
+    } catch (err) {
+      return error(err, res);
     }
   }
 
@@ -60,8 +61,8 @@ export class ProjectsController{
       });
       
       res.send({ content: edited, message: 'Project edited successfully' });
-    } catch ({ message }) {
-      res.send({ message });
+    } catch (err) {
+      return error(err, res);
     }
   }
 
@@ -72,8 +73,8 @@ export class ProjectsController{
       await this.projectService.deleteProject(getUserId(res), req.params.id);
       
       res.send({ content: null, message: 'Project deleted successfully' });
-    } catch ({ message }) {
-      res.send({ message });
+    } catch (err) {
+      return error(err, res);
     }
   }
 }
