@@ -1,4 +1,3 @@
-export type VersionIncrementType = "major" | "minor" | "patch";
 export interface MergeParams {
   from: string;
   to: string;
@@ -16,8 +15,8 @@ export interface PushParams {
 
 export interface IGitRepository {
   clone(url: string, projectId: string): Promise<void>;
-  merge(params: MergeParams): Promise<void>;
-  incrementPackageJson(type: VersionIncrementType, projectId: string): void;
+  merge(params: MergeParams, tagName?: string): Promise<void>;
   tag(name: string, branchName: string, projectId: string, notes: string): Promise<void>;
   push(params: PushParams): Promise<void>;
+  deleteRepo(projectId: string): Promise<void>;
 }

@@ -84,11 +84,10 @@ export class ReleasesController {
       await this.releaseService.createRelease(getUserId(res), {
         releaseConfigId: req.params.id,
         notes: req.body.notes,
-        type: req.body.type,
         tagName: req.body.tagName,
       });
 
-      return res.send({ message: 'Deleted successfully' });
+      return res.send({ message: 'Project released successfully' });
     } catch (err) {
       return error(err, res);
     }

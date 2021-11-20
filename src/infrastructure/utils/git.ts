@@ -1,6 +1,6 @@
 import { Repository } from 'nodegit';
 import Git from "nodegit";
-import { IGitRepository, MergeParams, PushParams, VersionIncrementType } from '../../application/interfaces/IGitRepository';
+import { IGitRepository, MergeParams, PushParams } from '../../application/interfaces/IGitRepository';
 import fs from "fs";
 import simpleGit, { SimpleGit } from 'simple-git';
 
@@ -15,6 +15,10 @@ export class NodeGit implements IGitRepository {
       binary: 'git',
       maxConcurrentProcesses: 6,
    });
+  }
+
+  async deleteRepo(projectId: string): Promise<void> {
+    return fs.rmSync(getPath(projectId), { recursive: true, force: true });
   }
 
   async clone(url: string, projectId: string): Promise<void> {
@@ -41,22 +45,9 @@ export class NodeGit implements IGitRepository {
     }
 
     const oid = await index.writeTreeTo(repository);
-    const parent = await repository.getHeadCommit();
     const author = Git.Signature.now(committerName, committerEmail);
 
     await repository.createCommit("HEAD", author, author, `[cherry]: merge ${from} into ${to}`, oid, [commitTo, commitFrom]);
-  }
-
-  incrementPackageJson(type: VersionIncrementType, projectId: string): void {
-    const packageJson = JSON.parse(fs.readFileSync(`${getPath(projectId)}/package.json`, 'utf8')) as { version: string };
-
-    const [major, minor, patch] = packageJson.version.split('.');
-
-    // return {
-    //   major: Number(major) + (type === "major" ? 1 : 0),
-    //   minor: Number(minor) + (type === "minor" ? 1 : 0),
-    //   patch: Number(patch) + (type === "patch" ? 1 : 0),
-    // };
   }
 
   async tag(name: string, branchName: string, projectId: string, notes: string): Promise<void> {

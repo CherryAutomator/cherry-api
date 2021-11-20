@@ -4,12 +4,11 @@ import { IReleaseConfigurationRepository, ReleaseConfiguration } from "../../dom
 import { IUserRepository } from "../../domain/model/User";
 import { NotFound } from "../../domain/shared/errors";
 import { PagingParams } from "../../domain/shared/pagination";
-import { IGitRepository, VersionIncrementType } from "../interfaces/IGitRepository";
+import { IGitRepository } from "../interfaces/IGitRepository";
 import { IGitRepositoryHosting } from "../interfaces/IGitRepositoryHosting";
 
 export interface ReleaseCommand {
   releaseConfigId: string;
-  type?: VersionIncrementType;
   tagName?: string;
   notes: string;
 }
@@ -111,7 +110,7 @@ export class ReleaseService {
   }
 
   async createRelease(userId: string, releaseCommand: ReleaseCommand) {
-    const { releaseConfigId, notes, type, tagName } = releaseCommand;
+    const { releaseConfigId, notes, tagName } = releaseCommand;
 
     const user = await this.userRepository.findById(userId);
     const configuration = await this.getReleaseConfiguration(releaseConfigId);
@@ -131,21 +130,13 @@ export class ReleaseService {
       from: configuration.branchFrom,
       projectId: configuration.project.id,
       to: configuration.branchTo,
-    });
+    }, tagName);
 
     if (tagName) {
-      let tagname = tagName;
-  
-      // if (type) {
-      //   const { major, minor, patch } = this.repository.incrementPackageJson(type, configuration.project.id);
-      //   tagname = `v${major}.${minor}.${patch}`;
-      // }
-  
       console.log(` - 📃 Creating tag (${tagName})`);
   
       await this.repository.tag(tagName, configuration.branchTo, configuration.project.id, notes);
     }
-
 
     console.log(" - 🔱 Pushing to", configuration.branchTo);
 
@@ -167,5 +158,7 @@ export class ReleaseService {
         notes,
       });
     }
+
+    await this.repository.deleteRepo(configuration.project.id);
   }
 }
