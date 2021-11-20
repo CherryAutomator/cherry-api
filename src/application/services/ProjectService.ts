@@ -2,7 +2,6 @@ import { IProjectRepository, Project } from "../../domain/model/Project";
 import { IUserRepository } from "../../domain/model/User";
 import { NotFound } from "../../domain/shared/errors";
 import { Paged, PagingParams } from "../../domain/shared/pagination";
-import { ProjectResource } from "../dtos/project";
 
 export interface CreateProjectCommand {
   name: string;
@@ -68,7 +67,7 @@ export class ProjectService {
     return project;
   }
 
-  async getProjects(userId: string, pagingParams: PagingParams): Promise<Paged<ProjectResource>> {
+  async getProjects(userId: string, pagingParams: PagingParams): Promise<Paged<Project>> {
     return this.projectRepository.findByUser(userId, pagingParams);
   }
 }

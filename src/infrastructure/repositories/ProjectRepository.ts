@@ -7,11 +7,11 @@ import { computeLimitAndOffset } from "../utils/pagination";
 @EntityRepository(Project)
 export class ProjectRepository extends AbstractRepository<Project> implements IProjectRepository {
 
-  async findByUser(ownerId: string, params: PagingParams, options?: QueryOptions): Promise<Paged<Project>> {
+  async findByUser(userId: string, params: PagingParams, options?: QueryOptions): Promise<Paged<Project>> {
     const { limit, offset } = computeLimitAndOffset(params);
 
     const [data, total] = await this.repository.findAndCount({
-      where: { ownerId },
+      where: { userId },
       take: limit,
       skip: offset,
       relations: options ? options.relations : [],

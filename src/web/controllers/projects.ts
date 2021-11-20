@@ -1,10 +1,10 @@
 import { Request } from "express";
-import { ProjectResource } from "../../application/dtos/project";
 import { ProjectService } from "../../application/services/ProjectService";
 import { Project } from "../../domain/model/Project";
 import { Paged } from "../../domain/shared/pagination";
 import { Authorize, Delete, Get, Post, Put } from "../utils/decorators";
 import { error } from "../utils/errors";
+import { format } from "../utils/mapper";
 import { getPaging, getUserId } from "../utils/params";
 import { Response } from "../utils/response";
 
@@ -13,11 +13,11 @@ export class ProjectsController{
 
   @Authorize()
   @Get('/projects/:id')
-  async getProject(req: Request<{ id: string }>, res: Response<Project>) {
+  async getProject(req: Request<{ id: string }>, res: Response<any>) {
     try {
       const project = await this.projectService.getProject(getUserId(res), req.params.id);
 
-      return res.send({ content: project });
+      return res.send({ content: format.project(project) });
     } catch (err) {
       return error(err, res);
     }
@@ -25,11 +25,18 @@ export class ProjectsController{
 
   @Authorize()
   @Get('/me/projects')
-  async getProjectsFromUser(req: Request<{ id: string }>, res: Response<Paged<ProjectResource>>) {
+  async getProjectsFromUser(req: Request<{ id: string }>, res: Response<Paged<any>>) {
     try {
-      const projects = await this.projectService.getProjects(getUserId(res), getPaging(req));
+      const { data, total } = await this.projectService.getProjects(getUserId(res), getPaging(req));
 
-      return res.send({ content: projects });
+      console.log(data);
+
+      return res.send({
+        content: {
+          data: data.map(project => format.project(project)),
+          total,
+        }
+      });
     } catch (err) {
       return error(err, res);
     }
@@ -37,11 +44,11 @@ export class ProjectsController{
 
   @Authorize()
   @Post('/projects')
-  async create(req: Request, res: Response<Project>) {
+  async create(req: Request, res: Response<any>) {
     try {
       const created = await this.projectService.createProject(getUserId(res), req.body);
       
-      res.send({ content: created, message: 'Project created successfully' });
+      res.send({ content: format.project(created), message: 'Project created successfully' });
     } catch (err) {
       return error(err, res);
     }
@@ -49,7 +56,7 @@ export class ProjectsController{
 
   @Authorize()
   @Put('/projects/:id')
-  async edit(req: Request<{ id: string }>, res: Response<Project>) {
+  async edit(req: Request<{ id: string }>, res: Response<any>) {
     try {
       const { color, description, name } = req.body;
 
@@ -60,7 +67,10 @@ export class ProjectsController{
         color,
       });
       
-      res.send({ content: edited, message: 'Project edited successfully' });
+      res.send({
+        content: format.project(edited),
+        message: 'Project edited successfully',
+      });
     } catch (err) {
       return error(err, res);
     }
@@ -68,7 +78,7 @@ export class ProjectsController{
 
   @Authorize()
   @Delete('/projects/:id')
-  async delete(req: Request<{ id: string }>, res: Response<Project>) {
+  async delete(req: Request<{ id: string }>, res: Response<any>) {
     try {
       await this.projectService.deleteProject(getUserId(res), req.params.id);
       
