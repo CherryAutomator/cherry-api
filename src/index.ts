@@ -9,11 +9,13 @@ import { registerControllers } from './web/utils/decorators';
 import YAML from 'yamljs';
 const swaggerDocument = YAML.load('./swagger.yaml');
 import swaggerUI from 'swagger-ui-express';
+import cors from "cors";
 
 export const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded());
+app.use(cors());
 
 app.use('/v1', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
