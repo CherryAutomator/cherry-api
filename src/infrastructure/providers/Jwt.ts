@@ -8,7 +8,7 @@ export class Jwt implements IJwtProvider {
   createAccessToken(user: User) {
     return jwt.sign({}, jwtSecret, {
       subject: user.id,
-      expiresIn: 60,
+      expiresIn: '1h',
     });
   }
 
