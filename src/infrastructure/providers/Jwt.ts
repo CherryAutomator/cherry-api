@@ -2,7 +2,7 @@ import { IJwtProvider } from "../../application/interfaces/IJwtProvider";
 import { User } from "../../domain/model/User";
 import jwt from 'jsonwebtoken';
 
-export const jwtSecret = 'aaaaaaaaaaa';
+export const jwtSecret = 'XFuI0]IdB-<zlV4';
 
 export class Jwt implements IJwtProvider {
   createAccessToken(user: User) {
