@@ -47,8 +47,6 @@ export class ReleaseService {
 
     const project = await this.projectRepository.findById(projectId);
 
-    console.log(project);
-
     if (!project) {
       throw new NotFound("Project not found");
     }

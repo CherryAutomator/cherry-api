@@ -18,4 +18,16 @@ export class AuthenticationController {
       return error(err, res);
     }
   }
+
+  @Post('/auth/refresh')
+  async refreshToken(req: Request, res: Response<any>) {
+    try {
+      const { refreshToken } = req.body;
+      const tokens = await this.authenticationService.refreshToken(refreshToken);
+
+      res.send({ content: tokens, message: 'Successfully authenticated' });
+    } catch (err) {
+      return error(err, res);
+    }
+  }
 }

@@ -57,7 +57,6 @@ export class NodeGit implements IGitRepository {
     try {
       await repository.createTag(branch.target(), name, notes);
     } catch (error) {
-      console.log("ERROR TAG", error);
       throw error;
     }
   }

@@ -19,7 +19,6 @@ export function authorize(req: Request, res: Response, next: NextFunction) {
 
     next();
   } catch (error) {
-    console.log('ERROO', error);
     res.status(Http.Unauthorized);
     res.send({ message: 'Invalid token' });
   }

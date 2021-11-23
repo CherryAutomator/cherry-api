@@ -10,7 +10,6 @@ paths:
     post:
       tags:
       - "Authentication"
-      operationId: "addPet"
       consumes:
       - "application/json"
       produces:
@@ -21,6 +20,29 @@ paths:
         required: true
         schema: 
           $ref: "#/definitions/AuthRequest"
+      responses:
+        "400":
+          description: "The email or password are invalid"
+          schema:
+              $ref: "#/definitions/ApiResponse"
+        "200":
+          description: "Success"
+          schema:
+              $ref: "#/definitions/ApiResponse"
+  /auth/refresh:
+    post:
+      tags:
+      - "Authentication"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema: 
+          $ref: "#/definitions/RefreshTokenRequest"
       responses:
         "400":
           description: "The email or password are invalid"
@@ -279,6 +301,13 @@ definitions:
         type: "string"
     xml:
       name: "AuthRequest"
+  RefreshTokenRequest:
+    type: "object"
+    properties:
+      refreshToken:
+        type: "string"
+    xml:
+      name: "RefreshTokenRequest"
   CreateUserCommand:
     type: "object"
     properties:
