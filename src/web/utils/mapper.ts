@@ -15,6 +15,7 @@ export const format = {
       firstname: user.firstname,
       lastname: user.lastname,
       email: user.email,
+      personalAccessToken: user.accessToken,
     }
   }
 }
