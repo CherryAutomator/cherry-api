@@ -53,6 +53,10 @@ export class UserService {
   }
 
   async getOne(id: string) {
+    if (!id) {
+      throw new NotFound('User not found');
+    }
+
     const user = await this.userRepository.findById(id);
 
     if (!user) throw new NotFound("User not found");
