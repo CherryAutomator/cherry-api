@@ -30,4 +30,15 @@ export class UsersController {
       return error(err, res);
     }
   }
+
+  @Get('/me/access-token')
+  async setupAccessToken(req: Request, res: Response<any>) {
+    try {
+      await this.userService.setupAcessToken(getUserId(res), req.body.accessToken);
+
+      res.send({ content: null, message: 'Access token configurated successfuly' });
+    } catch (err) {
+      return error(err, res);
+    }
+  }
 }
