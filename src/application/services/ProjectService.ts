@@ -12,9 +12,9 @@ export interface CreateProjectCommand {
 
 export interface EditProjectCommand {
   id: string;
-  name: string;
-  description: string;
-  color: string;
+  name?: string;
+  description?: string;
+  color?: string;
 }
 
 export class ProjectService {
@@ -40,8 +40,14 @@ export class ProjectService {
 
     project.validateOwner(userId);
 
-    project.name = command.name;
-    project.color = command.color;
+    if (command.name) {
+      project.name = command.name;
+    }
+
+    if (command.color) {
+      project.color = command.color;
+    }
+
     project.description = command.description;
 
     return this.projectRepository.store(project);
