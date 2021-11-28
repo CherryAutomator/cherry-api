@@ -1,5 +1,5 @@
 import { UserService } from "../../application/services/UserService";
-import { Get, Post } from "../utils/decorators";
+import { Authorize, Get, Post } from "../utils/decorators";
 import { Response } from "../utils/response";
 import { Request } from "express";
 import { error } from "../utils/errors";
@@ -21,6 +21,7 @@ export class UsersController {
   }
 
   @Get('/me')
+  @Authorize()
   async getMe(_req: Request, res: Response<any>) {
     try {
       const user = await this.userService.getOne(getUserId(res));
@@ -31,7 +32,8 @@ export class UsersController {
     }
   }
 
-  @Get('/me/access-token')
+  @Post('/me/access-token')
+  @Authorize()
   async setupAccessToken(req: Request, res: Response<any>) {
     try {
       await this.userService.setupAcessToken(getUserId(res), req.body.accessToken);
