@@ -35,6 +35,7 @@ export const ReleaseConfigurationSchema = new EntitySchema<ReleaseConfiguration>
     project: {
       type: "many-to-one",
       target: Project.name,
+      onDelete: "CASCADE",
     },
   },
 });
