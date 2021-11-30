@@ -26,28 +26,18 @@ export class NodeGit implements IGitRepository {
   }
 
   async merge(params: MergeParams): Promise<void> {
-    const { committerEmail, committerName, from, projectId, to } = params;
+    const { projectId, to } = params;
 
     const repository = await Repository.open(getPath(projectId));
 
     const branches = await repository.getReferences();
 
     let branchTo = branches.find(branch => branch.shorthand() === `origin/${to}`);
-    let branchFrom = branches.find(branch => branch.shorthand() === `origin/${from}`);
 
     const commitTo = await repository.getCommit(branchTo.target());
-    const commitFrom = await repository.getCommit(branchFrom.target());
 
-    const index = await Git.Merge.commits(repository, commitFrom, commitTo);
-
-    if (index.hasConflicts()) {
-      throw new Error("Cannot merge. Resolve the conflicts");
-    }
-
-    const oid = await index.writeTreeTo(repository);
-    const author = Git.Signature.now(committerName, committerEmail);
-
-    await repository.createCommit("HEAD", author, author, `[cherry]: merge ${from} into ${to}`, oid, [commitTo, commitFrom]);
+    await repository.createBranch(params.to, commitTo, false);
+    await repository.mergeBranches(params.to, `origin/${params.from}`);
   }
 
   async tag(name: string, branchName: string, projectId: string, notes: string): Promise<void> {
