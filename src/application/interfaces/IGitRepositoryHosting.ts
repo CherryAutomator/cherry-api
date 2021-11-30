@@ -14,5 +14,5 @@ export interface RemoteRepository {
 
 export interface IGitRepositoryHosting {
   newRelease(params: ReleaseParams): Promise<void>;
-  getRemoteRepository(repositoryId: string): Promise<RemoteRepository>;
+  getRemoteRepository(repositoryId: string, accessToken: string): Promise<RemoteRepository>;
 }

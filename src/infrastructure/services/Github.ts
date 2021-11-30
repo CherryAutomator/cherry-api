@@ -13,8 +13,8 @@ export class Github implements IGitRepositoryHosting {
     });
   }
 
-  async getRemoteRepository(repositoryId: string): Promise<RemoteRepository> {
-    const octokit = new Octokit();
+  async getRemoteRepository(repositoryId: string, accessToken: string): Promise<RemoteRepository> {
+    const octokit = new Octokit({ auth: accessToken });
 
     const { data } = await octokit.request(`GET /repositories/${repositoryId}`);
 

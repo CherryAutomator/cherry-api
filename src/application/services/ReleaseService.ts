@@ -115,7 +115,7 @@ export class ReleaseService {
     
     configuration.project.validateOwner(userId);
 
-    const remoteRepository = await this.repositoryHosting.getRemoteRepository(configuration.project.externalRepositoryId);
+    const remoteRepository = await this.repositoryHosting.getRemoteRepository(configuration.project.externalRepositoryId, user.accessToken);
 
     console.log(`\n⏳ Cloning ${remoteRepository.url}`);
 
