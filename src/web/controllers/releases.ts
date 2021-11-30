@@ -89,6 +89,7 @@ export class ReleasesController {
 
       return res.send({ message: 'Project released successfully' });
     } catch (err) {
+      console.log(err);
       return error(err, res);
     }
   }

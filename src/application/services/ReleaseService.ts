@@ -112,6 +112,7 @@ export class ReleaseService {
 
     const user = await this.userRepository.findById(userId);
     const configuration = await this.getReleaseConfiguration(releaseConfigId);
+    
     configuration.project.validateOwner(userId);
 
     const remoteRepository = await this.repositoryHosting.getRemoteRepository(configuration.project.externalRepositoryId);
