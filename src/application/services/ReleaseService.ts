@@ -115,6 +115,8 @@ export class ReleaseService {
     
     configuration.project.validateOwner(userId);
 
+    await this.repository.deleteRepo(configuration.project.id);
+
     const remoteRepository = await this.repositoryHosting.getRemoteRepository(configuration.project.externalRepositoryId, user.accessToken);
 
     console.log(`\n⏳ Cloning ${remoteRepository.url}`);
@@ -157,7 +159,5 @@ export class ReleaseService {
         notes,
       });
     }
-
-    await this.repository.deleteRepo(configuration.project.id);
   }
 }
