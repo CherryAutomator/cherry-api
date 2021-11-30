@@ -70,6 +70,23 @@ paths:
           description: "Success"
           schema:
               $ref: "#/definitions/ApiResponse"
+  /me/access-token:
+    post:
+      tags:
+      - "Users"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/ConfigureAccessTokenCommand"
+      responses:
+        "200":
+          description: "Success"
+          schema:
+              $ref: "#/definitions/ApiResponse"
   /projects:
     post:
       tags:
@@ -167,6 +184,27 @@ paths:
         required: true
         schema:
           $ref: "#/definitions/CreateReleaseConfigurationCommand"
+      responses:
+        "200":
+          description: "Success"
+          schema:
+              $ref: "#/definitions/ApiResponse"
+  /release-configurations/{id}/releases:
+    post: 
+      tags:
+      - "Release Configurations"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/ReleaseCommand"
       responses:
         "200":
           description: "Success"
@@ -321,6 +359,22 @@ definitions:
         type: string
     xml:
       name: "CreateUserCommand"
+  ReleaseCommand:
+    type: "object"
+    properties:
+      notes:
+        type: "string"
+      tagName:
+        type: "string"
+    xml:
+      name: "ReleaseCommand"
+  ConfigureAccessTokenCommand:
+    type: "object"
+    properties:
+      accessToken:
+        type: "string"
+    xml:
+      name: "ConfigureAccessTokenCommand"
   ApiResponse:
     type: "object"
     properties:

@@ -45,6 +45,8 @@ export class UserService {
 
     user.accessToken = accessToken;
 
+    await this.userRepository.store(user);
+
     return user;
   }
 
