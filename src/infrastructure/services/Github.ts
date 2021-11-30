@@ -19,7 +19,7 @@ export class Github implements IGitRepositoryHosting {
     const { data } = await octokit.request(`GET /repositories/${repositoryId}`);
 
     return {
-      url: data.clone_url,
+      url: data.ssh_url,
       name: data.name,
       owner: data.owner.login,
     };
