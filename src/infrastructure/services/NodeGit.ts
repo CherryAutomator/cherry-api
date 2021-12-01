@@ -36,7 +36,12 @@ export class NodeGit implements IGitRepository {
 
     const commitTo = await repository.getCommit(branchTo.target());
 
-    await repository.createBranch(params.to, commitTo, false);
+    const existentLocalToBranch = branches.find(branch => branch.shorthand() === `${to}`);
+
+    if (!existentLocalToBranch) {
+      await repository.createBranch(params.to, commitTo, false);
+    }
+    
     await repository.mergeBranches(params.to, `origin/${params.from}`);
   }
 
